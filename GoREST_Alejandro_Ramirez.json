@@ -1,0 +1,659 @@
+{
+  "info": {
+    "_postman_id": "68809328-651b-4812-a4c0-c29f7bcb08af",
+    "name": "GoREST_Alejandro_Ramirez",
+    "description": "Practico",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44279773",
+    "_collection_link": "https://go.postman.co/collection/44279773-68809328-651b-4812-a4c0-c29f7bcb08af?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Crear Usuario",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"email\", \"alejandro_\" + Date.now() + \"@qatest.com\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"El usuario se creo bien\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    pm.expect(json.id).to.not.be.undefined;",
+                  "    pm.environment.set(\"userId\", json.id);",
+                  "});",
+                  "",
+                  "pm.test(\"Los datos guardados coinciden con los enviados\", function () {",
+                  "    pm.expect(json.name).to.eql(pm.environment.get(\"nombreUsuario\"));",
+                  "    pm.expect(json.email).to.eql(pm.environment.get(\"email\"));",
+                  "    pm.expect(json.status).to.eql(\"active\");",
+                  "});",
+                  "",
+                  "pm.test(\"El tiempo de respuesta es menor a 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"{{nombreUsuario}}\",\n    \"gender\": \"male\",\n    \"email\": \"{{email}}\",\n    \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"El usuario existe y se consulto correctamente\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.id).to.eql(Number(pm.environment.get(\"userId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"Los datos del usuario son los esperados\", function () {",
+                  "    pm.expect(json.name).to.eql(pm.environment.get(\"nombreUsuario\"));",
+                  "    pm.expect(json.email).to.eql(pm.environment.get(\"email\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"El usuario se actualizo correctamente\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.id).to.eql(Number(pm.environment.get(\"userId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"El estado cambio a inactive\", function () {",
+                  "    pm.expect(json.status).to.eql(\"inactive\");",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"inactive\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Usuarios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"La lista de usuarios se obtuvo correctamente\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json).to.be.an(\"array\");",
+                  "    pm.expect(json.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Cada usuario tiene los campos requeridos\", function () {",
+                  "    pm.expect(json[0]).to.have.property(\"id\");",
+                  "    pm.expect(json[0]).to.have.property(\"name\");",
+                  "    pm.expect(json[0]).to.have.property(\"email\");",
+                  "    pm.expect(json[0]).to.have.property(\"status\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&per_page=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Crear Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"El post se creo correctamente\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    pm.expect(json.id).to.not.be.undefined;",
+                  "    pm.environment.set(\"postId\", json.id);",
+                  "});",
+                  "",
+                  "pm.test(\"El post pertenece al usuario creado\", function () {",
+                  "    pm.expect(json.user_id).to.eql(Number(pm.environment.get(\"userId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"El titulo del post es el esperado\", function () {",
+                  "    pm.expect(json.title).to.eql(pm.environment.get(\"tituloPost\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"{{tituloPost}}\",\n    \"body\": \"Contenido del post generado en la prueba automatizada.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/posts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "posts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"El post existe y se consulto correctamente\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.id).to.eql(Number(pm.environment.get(\"postId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"El post conserva el titulo y el usuario\", function () {",
+                  "    pm.expect(json.title).to.eql(pm.environment.get(\"tituloPost\"));",
+                  "    pm.expect(json.user_id).to.eql(Number(pm.environment.get(\"userId\")));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posts",
+                "{{postId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Posts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"La lista de posts se obtuvo correctamente\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json).to.be.an(\"array\");",
+                  "    pm.expect(json.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Cada post tiene los campos requeridos\", function () {",
+                  "    pm.expect(json[0]).to.have.property(\"id\");",
+                  "    pm.expect(json[0]).to.have.property(\"user_id\");",
+                  "    pm.expect(json[0]).to.have.property(\"title\");",
+                  "    pm.expect(json[0]).to.have.property(\"body\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/posts?page=1&per_page=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Crear Comentario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"El comentario se creo correctamente\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    pm.expect(json.id).to.not.be.undefined;",
+                  "    pm.environment.set(\"commentId\", json.id);",
+                  "});",
+                  "",
+                  "pm.test(\"El comentario pertenece al post creado\", function () {",
+                  "    pm.expect(json.post_id).to.eql(Number(pm.environment.get(\"postId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"El cuerpo del comentario es el esperado\", function () {",
+                  "    pm.expect(json.body).to.eql(pm.environment.get(\"cuerpoComentario\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"{{nombreUsuario}}\",\n    \"email\": \"{{email}}\",\n    \"body\": \"{{cuerpoComentario}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posts",
+                "{{postId}}",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Comentario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"El comentario existe y se consulto correctamente\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.id).to.eql(Number(pm.environment.get(\"commentId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"El comentario conserva el cuerpo y el post\", function () {",
+                  "    pm.expect(json.body).to.eql(pm.environment.get(\"cuerpoComentario\"));",
+                  "    pm.expect(json.post_id).to.eql(Number(pm.environment.get(\"postId\")));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comments/{{commentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "comments",
+                "{{commentId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Comentarios del Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "",
+                  "pm.test(\"Los comentarios del post se obtuvieron correctamente\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json).to.be.an(\"array\");",
+                  "    pm.expect(json.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Todos los comentarios pertenecen al post creado\", function () {",
+                  "    var postId = Number(pm.environment.get(\"postId\"));",
+                  "    json.forEach(function (comentario) {",
+                  "        pm.expect(comentario.post_id).to.eql(postId);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posts",
+                "{{postId}}",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Limpieza",
+      "item": [
+        {
+          "name": "Eliminar Usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El usuario se elimino correctamente\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verificar Usuario Eliminado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El usuario eliminado ya no existe\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  }
+}
